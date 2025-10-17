@@ -4,11 +4,14 @@ const sanitizeHtml=require('sanitize-html');
 const url=require('url');
 const path=require('path');
 const qs=require('querystring');
+const bodyParser=require('body-parser');
 
 const template=require('./lib/template.js');
 
 const app=express();
 const port=1236;
+
+app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/', (req,res) => {
 	fs.readdir('./data', 'utf-8', (err, filelist) => {	
@@ -63,19 +66,13 @@ app.get('/create', (req,res) => {
 });
 
 app.post('/create', (req,res) => {
-	var body='';
-	req.on('data', (data) => {
-		body+=data;
+	var post=req.body;
+	var title=post.title;
+	var description=post.description;
+	fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
+		if (err) throw err;
+		res.redirect(`/page/${title}`);
 	});
-	req.on('end', () => {
-		var post=qs.parse(body);
-		var title=post.title;
-		var description=post.description;
-		fs.writeFile(`data/${title}`,description,'utf-8',  (err)=> {
-			if (err) throw err;
-			res.redirect(`/page/${title}`);
-		});
-	});	
 });
 
 app.get('/update/:pageId', (req, res) => {
@@ -99,37 +96,25 @@ app.get('/update/:pageId', (req, res) => {
 });
 
 app.post('/update/:pageId', (req,res) => {
-	var body='';
-	req.on('data', (data) => {
-		body+=data;
-	});
-	req.on('end', () => {
-		var post=qs.parse(body);
-		var id=post.id;
-		var title=post.title;
-		var description=post.description;
-		fs.rename(`./data/${id}`, `./data/${title}`, (err) => {
+	var post=req.body;
+	var id=post.id;
+	var title=post.title;
+	var description=post.description;
+	fs.rename(`./data/${id}`, `./data/${title}`, (err) => {
+		if (err) throw err;
+		fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
 			if (err) throw err;
-			fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
-				if (err) throw err;
-				res.redirect(`/page/${title}`);
-			});
+			res.redirect(`/page/${title}`);
 		});
 	});
 });
 
 app.post('/delete', (req,res) => {
-	body='';
-	req.on('data', (data)=> {
-		body+=data;
-	});
-	req.on('end', () => {
-		var post=qs.parse(body);
-		var id=post.id;
-		fs.unlink(`data/${id}`, (err) => {
-			if (err) throw err;
-			res.redirect('/');
-		});
+	var post=req.body;
+	var id=post.id;
+	fs.unlink(`data/${id}`, (err) => {
+		if (err) throw err;
+		res.redirect('/');
 	});
 });
 
