@@ -15,57 +15,53 @@ const port=1236;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(compression());
-
-app.get('/', (req,res) => {
-	fs.readdir('./data', 'utf-8', (err, filelist) => {	
-		if (err) throw err;
-
-		var title='Welcome';
-		var description='Hello, Express!';
-		var list=template.list(filelist);
-		var html=template.html(title, list,
-			`<h2>${title}</h2>${description}`,
-			`<a href="/create">create</a>`
-		);
-		res.send(html);
+app.get('*splat', (req,res,next) => {
+	fs.readdir('./data', (err, filelist) => {
+		req.list=filelist;
+		next();
 	});
 });
-app.get('/page/:pageId', (req,res) => {
-	fs.readdir('./data', 'utf-8', (err, filelist) => {
-		if (err) throw err;
 
-		var filteredId=path.parse(req.params.pageId).base;
-		fs.readFile(`data/${filteredId}`, 'utf-8', (err, description) => {
-			var sanitizedTitle=sanitizeHtml(req.params.pageId);
-			var sanitizedDescription=sanitizeHtml(description);
-			var list=template.list(filelist);
-			var html=template.html(sanitizedTitle, list, 
-				`<h2>${sanitizedTitle}</h2>
-				<p>${sanitizedDescription}</p>`,
-				`<a href="/create">create</a>
-				<a href="/update/${sanitizedTitle}">update</a>
-				<form action="/delete" method="POST">
-				<input type="hidden" name="id" value="${sanitizedTitle}">
-				<input type="submit" value="delete">
-				</form>`);
-			res.send(html);
-		});
+app.get('/', (req,res) => {
+	var title='Welcome';
+	var description='Hello, Express!';
+	var list=template.list(req.list);
+	var html=template.html(title, list,
+		`<h2>${title}</h2>${description}`,
+		`<a href="/create">create</a>`
+	);
+	res.send(html);
+});
+app.get('/page/:pageId', (req,res) => {
+	var filteredId=path.parse(req.params.pageId).base;
+	fs.readFile(`data/${filteredId}`, 'utf-8', (err, description) => {
+		var sanitizedTitle=sanitizeHtml(req.params.pageId);
+		var sanitizedDescription=sanitizeHtml(description);
+		var list=template.list(req.list);
+		var html=template.html(sanitizedTitle, list, 
+			`<h2>${sanitizedTitle}</h2>
+			<p>${sanitizedDescription}</p>`,
+			`<a href="/create">create</a>
+			<a href="/update/${sanitizedTitle}">update</a>
+			<form action="/delete" method="POST">
+			<input type="hidden" name="id" value="${sanitizedTitle}">
+			<input type="submit" value="delete">
+			</form>`);
+		res.send(html);
 	});
 });	
 
 app.get('/create', (req,res) => {
-	fs.readdir('./data','utf-8',(err, filelist) => {
-		var list=template.list(filelist);
-		var title='WEB - Create';
-		var html=template.html(title, list, `
-		<form action='/create', method='POST'>
-		<p><input type='text' name='title' placeholder='title'></p>
-		<p><textarea name='description' placeholder='description'></textarea></p>
-		<p><input type='submit'></p>
-		</form>
-		`,'');
-		res.send(html);
-	});
+	var list=template.list(req.list);
+	var title='WEB - Create';
+	var html=template.html(title, list, `
+	<form action='/create', method='POST'>
+	<p><input type='text' name='title' placeholder='title'></p>
+	<p><textarea name='description' placeholder='description'></textarea></p>
+	<p><input type='submit'></p>
+	</form>
+	`,'');
+	res.send(html);
 });
 
 app.post('/create', (req,res) => {
@@ -79,22 +75,19 @@ app.post('/create', (req,res) => {
 });
 
 app.get('/update/:pageId', (req, res) => {
-	fs.readdir('./data', 'utf-8', (err, filelist) => {
+	var filteredId=path.parse(req.params.pageId).base;
+	var list=template.list(req.list);
+	fs.readFile(`data/${filteredId}`, 'utf-8', (err, description) => {
 		if (err) throw err;
-		var filteredId=path.parse(req.params.pageId).base;
-		var list=template.list(filelist);
-		fs.readFile(`data/${filteredId}`, 'utf-8', (err, description) => {
-			if (err) throw err;
-			var html=template.html(filteredId,list,`
-			<form action='/update/:${filteredId}' method='POST'>
-			<input type="hidden" name="id" value="${filteredId}">
-			<p><input type='text' name='title' placeholder='title' value=${filteredId}></p>
-			<p><textarea name='description' placeholder='description'>${description}</textarea></p>
-			<p><input type='submit'></p>
-			</form>
-			`,'');
-			res.send(html);
-		});
+		var html=template.html(filteredId,list,`
+		<form action='/update/:${filteredId}' method='POST'>
+		<input type="hidden" name="id" value="${filteredId}">
+		<p><input type='text' name='title' placeholder='title' value=${filteredId}></p>
+		<p><textarea name='description' placeholder='description'>${description}</textarea></p>
+		<p><input type='submit'></p>
+		</form>
+		`,'');
+		res.send(html);
 	});
 });
 
