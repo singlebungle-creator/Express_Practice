@@ -73,8 +73,7 @@ app.post('/create', (req,res) => {
 		var description=post.description;
 		fs.writeFile(`data/${title}`,description,'utf-8',  (err)=> {
 			if (err) throw err;
-			res.writeHead(302, {Location:`/page/${title}`});	
-			res.end();
+			res.redirect(`/page/${title}`);
 		});
 	});	
 });
@@ -93,7 +92,7 @@ app.get('/update/:pageId', (req, res) => {
 			<p><textarea name='description' placeholder='description'>${description}</textarea></p>
 			<p><input type='submit'></p>
 			</form>
-			`);
+			`,'');
 			res.send(html);
 		});
 	});
@@ -113,8 +112,7 @@ app.post('/update/:pageId', (req,res) => {
 			if (err) throw err;
 			fs.writeFile(`data/${title}`, description, 'utf-8', (err) => {
 				if (err) throw err;
-				res.writeHead(302, {Location: `/page/${title}`});
-				res.end();
+				res.redirect(`/page/${title}`);
 			});
 		});
 	});
@@ -130,8 +128,7 @@ app.post('/delete', (req,res) => {
 		var id=post.id;
 		fs.unlink(`data/${id}`, (err) => {
 			if (err) throw err;
-			res.writeHead(302, {Location: '/'});
-			res.end();
+			res.redirect('/');
 		});
 	});
 });
