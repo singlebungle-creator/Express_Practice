@@ -1,0 +1,25 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "NodeJs 연습용",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/singlebungle-creator/NodeJs_Practice.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/singlebungle-creator/NodeJs_Practice/issues"
+  },
+  "homepage": "https://github.com/singlebungle-creator/NodeJs_Practice#readme",
+  "dependencies": {
+    "sanitize-html": "^2.17.0"
+  }
+}
