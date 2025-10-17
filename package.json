@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/singlebungle-creator/NodeJs_Practice#readme",
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "compression": "^1.8.1",
     "express": "^5.1.0",
     "sanitize-html": "^2.17.0"
   }

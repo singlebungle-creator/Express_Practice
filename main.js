@@ -4,7 +4,9 @@ const sanitizeHtml=require('sanitize-html');
 const url=require('url');
 const path=require('path');
 const qs=require('querystring');
+
 const bodyParser=require('body-parser');
+const compression=require('compression');
 
 const template=require('./lib/template.js');
 
@@ -12,6 +14,7 @@ const app=express();
 const port=1236;
 
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(compression());
 
 app.get('/', (req,res) => {
 	fs.readdir('./data', 'utf-8', (err, filelist) => {	
